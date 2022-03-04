@@ -1,5 +1,5 @@
 # D2H
-This is a simple tool to convert image, font and sound files into arrays for use with raylib.
+This is a simple tool to convert image, font and sound files into arrays for use with raylib. Only supports Windows for now.
 
 ## Usage
 ```
