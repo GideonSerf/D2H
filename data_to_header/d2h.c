@@ -112,7 +112,9 @@ unsigned char* LoadFileData(const char* fileName, int* bytesRead)
 
 int main(int argc, char** argv)
 {
-	char extension[6] = "     ";
+	#define MAX_EXTENSION_LENGTH 5
+
+	char extension[MAX_EXTENSION_LENGTH+1]={0};
 
 	if (argc < 3)
 	{
@@ -121,13 +123,13 @@ int main(int argc, char** argv)
 	}
 	if (argc == 4)
 	{
-		if (STRNLEN(argv[3],6) > 5)
+		if (STRNLEN(argv[3], MAX_EXTENSION_LENGTH+1) > MAX_EXTENSION_LENGTH)
 		{
 			printf("The file extension %s is too long... \n\n",argv[3]);
 			return -1;
 		}
 		else {
-			STRNCPY(extension, argv[3], 6);
+			STRNCPY(extension, argv[3], MAX_EXTENSION_LENGTH+1);
 			printf("File extension set: %s\n", extension);
 		}
 	}
@@ -141,14 +143,14 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-			if (STRNLEN(r_value, 6) > 5)
+			if (STRNLEN(r_value, MAX_EXTENSION_LENGTH + 1) > MAX_EXTENSION_LENGTH)
 			{
 				printf("The file extension %s is too long... \n\n", r_value);
 				return -1;
 			}
 			else
 			{
-				STRNCPY(extension, r_value, 6);
+				STRNCPY(extension, r_value, MAX_EXTENSION_LENGTH + 1);
 				printf("File extension set: %s\n", extension);
 			}
 		}
@@ -160,12 +162,12 @@ int main(int argc, char** argv)
 		return -1;
 	}
 	
-	if (strncmp(extension, ".png", 6) || strncmp(extension, ".bmp", 6) || strncmp(extension, ".tga", 6)
-	|| strncmp(extension, ".jpg", 6) || strncmp(extension, ".gif", 6) || strncmp(extension, ".pic", 6)
-	|| strncmp(extension, ".psd", 6) || strncmp(extension, ".ttf", 6) || strncmp(extension, ".otf", 6)
-	|| strncmp(extension, ".wav", 6) || strncmp(extension, ".ogg", 6) || strncmp(extension, ".flac", 6)
-	|| strncmp(extension, ".mp3", 6) || strncmp(extension, ".otf", 6) || strncmp(extension, ".xm", 6)
-	|| strncmp(extension, ".mod", 6))
+	if (strncmp(extension, ".png", MAX_EXTENSION_LENGTH + 1) || strncmp(extension, ".bmp", MAX_EXTENSION_LENGTH + 1) || strncmp(extension, ".tga", MAX_EXTENSION_LENGTH + 1)
+	|| strncmp(extension, ".jpg", MAX_EXTENSION_LENGTH + 1) || strncmp(extension, ".gif", MAX_EXTENSION_LENGTH + 1) || strncmp(extension, ".pic", MAX_EXTENSION_LENGTH + 1)
+	|| strncmp(extension, ".psd", MAX_EXTENSION_LENGTH + 1) || strncmp(extension, ".ttf", MAX_EXTENSION_LENGTH + 1) || strncmp(extension, ".otf", MAX_EXTENSION_LENGTH + 1)
+	|| strncmp(extension, ".wav", MAX_EXTENSION_LENGTH + 1) || strncmp(extension, ".ogg", MAX_EXTENSION_LENGTH + 1) || strncmp(extension, ".flac", MAX_EXTENSION_LENGTH + 1)
+	|| strncmp(extension, ".mp3", MAX_EXTENSION_LENGTH + 1) || strncmp(extension, ".otf", MAX_EXTENSION_LENGTH + 1) || strncmp(extension, ".xm", MAX_EXTENSION_LENGTH + 1)
+	|| strncmp(extension, ".mod", MAX_EXTENSION_LENGTH + 1))
 	{
 		FILE* outFile;
 #ifdef VC
