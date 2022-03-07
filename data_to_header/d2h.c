@@ -1,14 +1,43 @@
+#ifdef _MSC_VER
+#define VC
+#elif __GNUC__
+#define GCC
+#endif
+
 #include <stdio.h>
 #include <string.h>
+#ifdef _WIN32
 #include <io.h>
+	#define ACCESS(p,m) _access_s(p, m)
+#endif // _WIN32
+#ifdef __linux__
+	#include <unistd.h>
+#define ACCESS(p,m) access(p,m)
+#endif // __linux__
+
 #include <stdbool.h>
 #include <stdlib.h>
+
+#ifdef VC
+#define STRNLEN(String, MaxSize) strnlen_s(String,MaxSize)
+#define FPRINTF fprintf_s
+#define FOPEN(F,fname,AS) fopen_s(&F,fname,AS)
+#define STRNCPY(dest,src,n) strcpy_s(dest,n,src)
+#endif // VC
+
+#ifdef GCC
+#define STRNLEN(String, MaxSize) strnlen(String,MaxSize)
+#define FPRINTF fprintf
+#define FOPEN(F,fname,AS) F=fopen(fname,AS);
+#define STRNCPY(dest,src,n) strncpy(dest,src,n)
+#endif // GCC
+
 
 bool FileExists(const char* fileName)
 {
 	bool result = false;
 
-	if (_access_s(fileName, 0) != -1) result = true;
+	if (ACCESS(fileName, 0) != -1) result = true;
 
 	return result;
 }
@@ -26,9 +55,9 @@ const char* GetFileNameWithoutExt(const char* fileName)
 {
 #define MAX_FILENAME_LENGTH   128
 	static char fn[MAX_FILENAME_LENGTH];
-	strcpy_s(fn, MAX_FILENAME_LENGTH, fileName);
+	STRNCPY(fn, fileName, MAX_FILENAME_LENGTH);
 
-	int size = (int)strnlen_s(fn, MAX_FILENAME_LENGTH);   // Get size in bytes
+	int size = (int)STRNLEN(fn, MAX_FILENAME_LENGTH);   // Get size in bytes
 
 	for (int i = 0; (i < size) && (i < MAX_FILENAME_LENGTH); i++)
 	{
@@ -49,7 +78,7 @@ unsigned char* LoadFileData(const char* fileName, int* bytesRead)
 	*bytesRead = 0;
 
 	FILE* file;
-	fopen_s(&file,fileName, "rb");
+	FOPEN(file,fileName, "rb");
 
 	if (file != NULL)
 	{
@@ -92,13 +121,13 @@ int main(int argc, char** argv)
 	}
 	if (argc == 4)
 	{
-		if (strnlen_s(argv[3],6) > 5)
+		if (STRNLEN(argv[3],6) > 5)
 		{
 			printf("The file extension %s is too long... \n\n",argv[3]);
 			return -1;
 		}
 		else {
-			strcpy_s(extension, 6, argv[3]);
+			STRNCPY(extension, argv[3], 6);
 			printf("File extension set: %s\n", extension);
 		}
 	}
@@ -112,14 +141,14 @@ int main(int argc, char** argv)
 		}
 		else
 		{
-			if (strnlen_s(r_value, 6) > 5)
+			if (STRNLEN(r_value, 6) > 5)
 			{
 				printf("The file extension %s is too long... \n\n", r_value);
 				return -1;
 			}
 			else
 			{
-				strcpy_s(extension, 6, r_value);
+				STRNCPY(extension, r_value, 6);
 				printf("File extension set: %s\n", extension);
 			}
 		}
@@ -139,8 +168,10 @@ int main(int argc, char** argv)
 	|| strncmp(extension, ".mod", 6))
 	{
 		FILE* outFile;
+#ifdef VC
+
 		errno_t err;
-		err = fopen_s(&outFile, argv[2], "w+");
+		err = FOPEN(outFile, argv[2], "w+");
 		if (err == 0)
 		{
 			printf("Opened %s succesfully\n", argv[2]);
@@ -150,6 +181,20 @@ int main(int argc, char** argv)
 			printf("Could not open %s succesfully\n", argv[2]);
 			return -1;
 		}
+#endif
+#ifdef GCC
+		FOPEN(outFile,argv[2], "w+");
+		if (outFile == NULL)
+		{
+			printf("Opened %s succesfully\n", argv[2]);
+		}
+		else
+		{
+			printf("Could not open %s succesfully\n", argv[2]);
+			return -1;
+		}
+#endif
+
 
 		unsigned int size=0;
 		unsigned char* data = LoadFileData(argv[1], &size);
@@ -160,27 +205,28 @@ int main(int argc, char** argv)
 
 		const char* arrayName = GetFileNameWithoutExt(argv[2]);
 
-		fprintf_s(outFile, "const char* %s_ext = \"%s\";\n\n",arrayName,extension);
+		FPRINTF(outFile, "const char* %s_ext = \"%s\";\n\n",arrayName,extension);
 
-		fprintf_s(outFile, "int %s_size=%d;\n\n", arrayName, size);
+		FPRINTF(outFile, "int %s_size=%d;\n\n", arrayName, size);
 
-		fprintf_s(outFile, "unsigned char %s[] = {",arrayName);
+		FPRINTF(outFile, "unsigned char %s[] = {",arrayName);
 
 		unsigned int n,count=0;
 		for (n = 0; n < size-1; n++)
 		{
-			fprintf_s(outFile, "%d,", data[n]);
+			FPRINTF(outFile, "%d,", data[n]);
 			count++;
 			if (count == 20)
 			{
-				fprintf_s(outFile, "\n");
+				FPRINTF(outFile, "\n");
 				count = 0;
 			}
 		}
-		fprintf_s(outFile, "%d};", data[size-1]);
+		FPRINTF(outFile, "%d};", data[size-1]);
 		free(data);
+		fclose(outFile);
 	}
 
-	_fcloseall();
+	
 	return 0;
 }
