@@ -32,7 +32,7 @@
 #define STRNCPY(dest,src,n) strncpy(dest,src,n)
 #endif // GCC
 
-
+//Functions from raylib
 bool FileExists(const char* fileName)
 {
 	bool result = false;
@@ -108,6 +108,19 @@ unsigned char* LoadFileData(const char* fileName, int* bytesRead)
 	return data;
 }
 
+const char* GetFileName(const char* filePath)
+{
+	const char* fileName = NULL;
+	if (filePath != NULL)
+	{
+		for (; filePath = strpbrk(filePath, "\\/"), filePath != NULL; fileName = filePath++) {}
+	}
+
+	if (!fileName) return filePath;
+
+	return fileName + 1;
+}
+//=================================================================================================
 
 
 int main(int argc, char** argv)
@@ -204,8 +217,8 @@ int main(int argc, char** argv)
 		{
 			return -1;
 		}
-
-		const char* arrayName = GetFileNameWithoutExt(argv[2]);
+		
+		const char* arrayName = GetFileNameWithoutExt(GetFileName(argv[2]));
 
 		FPRINTF(outFile, "const char* %s_ext = \"%s\";\n\n",arrayName,extension);
 
