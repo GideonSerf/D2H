@@ -186,7 +186,7 @@ int main(int argc, char** argv)
 #endif
 #ifdef GCC
 		FOPEN(outFile,argv[2], "w+");
-		if (outFile == NULL)
+		if (outFile != NULL)
 		{
 			printf("Opened %s succesfully\n", argv[2]);
 		}
