@@ -110,13 +110,14 @@ unsigned char* LoadFileData(const char* fileName, int* bytesRead)
 
 const char* GetFileName(const char* filePath)
 {
+	const char* fPathCpy = filePath;
 	const char* fileName = NULL;
 	if (filePath != NULL)
 	{
 		for (; filePath = strpbrk(filePath, "\\/"), filePath != NULL; fileName = filePath++) {}
 	}
 
-	if (!fileName) return filePath;
+	if (!fileName) return fPathCpy;
 
 	return fileName + 1;
 }
